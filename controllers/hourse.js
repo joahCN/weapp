@@ -45,6 +45,7 @@ let uploadHourseInfo = async (ctx, next) => {
     hourseInfo.contactImgs = hourseInfo.contactImgs.join(",");
     hourseInfo.hourseImgs = hourseInfo.hourseImgs.join(",");
     hourseInfo.createdTime = Date.now();
+    hourseInfo.checkedBasicAsssets = body.checkedBasicAsssets.join(",");
     try {
         await mysql(tableName).insert(hourseInfo);
     } catch (e) {
