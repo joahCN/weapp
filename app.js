@@ -3,7 +3,10 @@ const app = new Koa()
 const debug = require('debug')('koa-weapp-demo')
 const response = require('./middlewares/response')
 const bodyParser = require('./middlewares/bodyparser')
-const config = require('./config')
+const config = require('./config');
+const serve = require('koa-static');
+
+app.use(serve(__dirname + '/userImgs'));
 
 // 使用响应处理中间件
 app.use(response)

@@ -128,3 +128,4 @@ koa-weapp-demo
 
 cos:
 fileName must be "file", otherwise "upload/index.js" will throw error. l-44
+bucket name should be low case.

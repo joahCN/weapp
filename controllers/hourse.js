@@ -48,6 +48,7 @@ let uploadHourseInfo = async (ctx, next) => {
     hourseInfo.checkedBasicAsssets = body.checkedBasicAsssets.join(",");
     try {
         await mysql(tableName).insert(hourseInfo);
+        
     } catch (e) {
         ctx.state.code = 1001;
         ctx.state.data = "添加失败";
