@@ -3,6 +3,7 @@
  */
 let {mysql} = require("../qcloud.js");
 let _ = require("lodash");
+let geolib = require("geolib");
 
 const tableName = "hourses";
 const livingHourseType = 1; //people living hourse
@@ -61,18 +62,48 @@ const queryType = {
     1: 'all'
 };
 
+const distance = 3000; //3km around.$sql = "SELECT *, ( 3959 * acos( cos( radians(" . $lat . ") ) * cos( radians( lat ) ) * cos( radians( lng ) - radians(" . $lng . ") ) + sin( radians(" . $lat . ") ) * sin( radians( lat ) ) ) ) AS distance FROM your_table HAVING distance < 5";
+const bearing = 45;
+
+//SELECT *, ( 3959 * acos( cos( radians(39.90377) ) * cos( radians( locationLa ) ) * cos( radians( locationLo ) - radians(116.39949) ) + sin( radians(39.90377) ) * sin( radians( locationLa ) ) ) ) AS distance FROM hourses HAVING distance < 5;
+
+
 let queryHourseList = async (ctx, next) => {
 
-    let queryType = ctx.request.body.type;
-    let userId = ctx.request.body.userId;
-    let results;
+    let query = ctx.request.query;
+    let queryType = query.type;
+    let userId = query.userId;
+    let latitude = query.latitude;
+    let longitude = query.longitude;
+    let hourseId = query.hourseId;
+
+    let whereClause = "";
+    let rawSQL = "";
+
     if(userId) {
-        results = await mysql.select("*").from(tableName).where({userId: userId});
+        whereClause = `where userId = "${userId}"`;
+    } else if(hourseId) {
+        whereClause = `where id = ${hourseId}`;
     } else {
-        results = await mysql.select("*").from(tableName).where({status: 0});
+        whereClause = `where status = 0`;
     }
+
+
+    if(latitude && longitude) {
+        rawSQL = `SELECT *, ( 3959 * acos( cos( radians(${latitude}) ) * cos( radians( locationLa ) ) * cos( radians( locationLo ) - radians(${longitude}) ) + sin( radians(${latitude}) ) * sin( radians( locationLa ) ) ) ) AS distance FROM ${tableName} ${whereClause} HAVING distance < 5;`
+    } else {
+        rawSQL = `select * from ${tableName} ${whereClause}`;
+    }
+
+    let results =  await mysql.raw(rawSQL);
+
+    // if(userId) {
+    //     results = await mysql.select("*").from(tableName).where({userId: userId});
+    // } else {
+    //     results = await mysql.select("*").from(tableName).where({status: 0});
+    // }
     
-    ctx.state.data = results;
+    ctx.state.data = results[0];
     
 
 };
