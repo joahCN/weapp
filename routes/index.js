@@ -4,7 +4,9 @@
 const router = require('koa-router')({
     prefix: '/weapp'   // 定义所有路由的前缀都已 /weapp 开头
 })
-const controllers = require('../controllers')
+const controllers = require('../controllers');
+
+const sessionCheck = require("../middlewares/sessionCheck");
 
 // 从 sdk 中取出中间件
 // 这里展示如何使用 Koa 中间件完成登录态的颁发与验证
@@ -35,7 +37,7 @@ router.post('/message', controllers.message.post)
 
 router.get('/hourseType', controllers.hourseType);
 router.get("/assets", controllers.assets);
-router.post('/hourse/add', controllers.hourse.uploadHourseInfo);
+router.post('/hourse/add', validationMiddleware, sessionCheck, controllers.hourse.uploadHourseInfo);
 router.get('/hourse/query', controllers.hourse.queryHourseList);
 
 module.exports = router
