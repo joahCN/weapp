@@ -108,8 +108,32 @@ let queryHourseList = async (ctx, next) => {
 
 };
 
+//edit hourse item status;
+let editHourseItem = async (ctx, next) => {
+    let body = ctx.request.body;
+    let userId = body.userId;
+    let hourseId = body.hourseId;
+    if(userId != ctx.state.$wxInfo.userinfo.openId) {
+        ctx.state = {
+            code: -1,
+            data: "没有权限修改"
+        };
+        
+    } else {
+        await mysql(tableName).where('id', '=', hourseId)
+            .update({
+                status: '1'
+            });
+
+        ctx.state.data = "update success";
+
+    }
+    
+}
+
 
 module.exports = {
     uploadHourseInfo,
-    queryHourseList
+    queryHourseList,
+    editHourseItem
 }

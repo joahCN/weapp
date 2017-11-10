@@ -38,6 +38,8 @@ router.post('/message', controllers.message.post)
 router.get('/hourseType', controllers.hourseType);
 router.get("/assets", controllers.assets);
 router.post('/hourse/add', validationMiddleware, sessionCheck, controllers.hourse.uploadHourseInfo);
+router.post('/hourse/edit', validationMiddleware, sessionCheck, controllers.hourse.editHourseItem);
 router.get('/hourse/query', controllers.hourse.queryHourseList);
+
 
 module.exports = router
