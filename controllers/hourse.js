@@ -90,9 +90,9 @@ let queryHourseList = async (ctx, next) => {
 
 
     if(latitude && longitude) {
-        rawSQL = `SELECT *, ( 3959 * acos( cos( radians(${latitude}) ) * cos( radians( locationLa ) ) * cos( radians( locationLo ) - radians(${longitude}) ) + sin( radians(${latitude}) ) * sin( radians( locationLa ) ) ) ) AS distance FROM ${tableName} ${whereClause} HAVING distance < 5;`
+        rawSQL = `SELECT *, ( 3959 * acos( cos( radians(${latitude}) ) * cos( radians( locationLa ) ) * cos( radians( locationLo ) - radians(${longitude}) ) + sin( radians(${latitude}) ) * sin( radians( locationLa ) ) ) ) AS distance FROM ${tableName} ${whereClause} HAVING distance < 5 order by createdTime desc;`
     } else {
-        rawSQL = `select * from ${tableName} ${whereClause}`;
+        rawSQL = `select * from ${tableName} ${whereClause} order by createdTime desc`;
     }
 
     let results =  await mysql.raw(rawSQL);
