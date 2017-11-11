@@ -1,9 +1,8 @@
 /**
  * Created by mac on 17/10/21.
  */
-let {mysql} = require("../qcloud.js");
+let {mysql, auth} = require("../qcloud.js");
 let _ = require("lodash");
-let geolib = require("geolib");
 
 const tableName = "hourses";
 const livingHourseType = 1; //people living hourse
@@ -80,29 +79,35 @@ let queryHourseList = async (ctx, next) => {
     let whereClause = "";
     let rawSQL = "";
 
-    if(userId) {
-        whereClause = `where userId = "${userId}"`;
+    if(userId) { //query user related hourses, need validate login status.
+        let result = await auth.validation(ctx.req);
+
+        if(result.loginState == 0) {
+            ctx.state = {
+                code: -1,
+                data: "请先登录再查询。"
+            };
+            return;
+        } else {
+            let userId = result.userinfo.openId;
+            whereClause = `where userId = "${userId}"`;
+        }
     } else if(hourseId) {
         whereClause = `where id = ${hourseId}`;
-    } else {
+    } else{
         whereClause = `where status = 0`;
     }
 
+    let resultFilterClause = "order by createdTime desc limit 50 offset 0";
 
     if(latitude && longitude) {
-        rawSQL = `SELECT *, ( 3959 * acos( cos( radians(${latitude}) ) * cos( radians( locationLa ) ) * cos( radians( locationLo ) - radians(${longitude}) ) + sin( radians(${latitude}) ) * sin( radians( locationLa ) ) ) ) AS distance FROM ${tableName} ${whereClause} HAVING distance < 5 order by createdTime desc;`
+        rawSQL = `SELECT *, ( 3959 * acos( cos( radians(${latitude}) ) * cos( radians( locationLa ) ) * cos( radians( locationLo ) - radians(${longitude}) ) + sin( radians(${latitude}) ) * sin( radians( locationLa ) ) ) ) AS distance FROM ${tableName} ${whereClause} HAVING distance < 5 ${resultFilterClause};`
     } else {
-        rawSQL = `select * from ${tableName} ${whereClause} order by createdTime desc`;
+        rawSQL = `select * from ${tableName} ${whereClause} ${resultFilterClause}`;
     }
 
     let results =  await mysql.raw(rawSQL);
 
-    // if(userId) {
-    //     results = await mysql.select("*").from(tableName).where({userId: userId});
-    // } else {
-    //     results = await mysql.select("*").from(tableName).where({status: 0});
-    // }
-    
     ctx.state.data = results[0];
     
 
