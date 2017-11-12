@@ -33,7 +33,7 @@ let uploadHourseInfo = async (ctx, next) => {
     let body = ctx.request.body;
     let hourseInfo = _.pick(body, ["endDate", "startDate", "hourseType", "contactImgs",
         "hourseImgs", "checkedBasicAsssets", "phoneNumber", "wechatNumber",
-        "discountAssets", "discountPrice", "originalPrice", "building", "status", "userId"]);
+        "discountAssets", "discountPrice", "originalPrice", "building","hostMessage", "status", "userId"]);
 
     // let {location, endDate, startDate, hourseType, contactImgs,
     //     hourseImgs, checkedBasicAsssets, phoneNumber, wechatNumber,
@@ -46,6 +46,7 @@ let uploadHourseInfo = async (ctx, next) => {
     hourseInfo.hourseImgs = hourseInfo.hourseImgs.join(",");
     hourseInfo.createdTime = Date.now();
     hourseInfo.checkedBasicAsssets = body.checkedBasicAsssets.join(",");
+
     try {
         await mysql(tableName).insert(hourseInfo);
         
